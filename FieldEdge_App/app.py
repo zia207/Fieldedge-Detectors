@@ -1273,13 +1273,13 @@ if st.session_state.get("_fe_page_shown") != PAGE_DETECT:
 st.session_state._fe_page_shown = PAGE_DETECT
 lat_in = c1.number_input("Latitude", format="%.6f", key="lat_in")
 lon_in = c2.number_input("Longitude", format="%.6f", key="lon_in")
-if c3.button("Go to coordinates", use_container_width=True):
+if c3.button("Go to coordinates", width="stretch"):
     st.session_state.center = [float(lat_in), float(lon_in)]
     st.session_state.zoom = 17
 
 loc1, loc2 = st.columns([4, 1], vertical_alignment="bottom")
 loc1.text_input("Location", key="location_query", placeholder="Town, village, or address")
-loc2.button("Go to location", use_container_width=True, on_click=_go_to_location)
+loc2.button("Go to location", width="stretch", on_click=_go_to_location)
 st.caption("Geocoding provided © [OpenStreetMap](https://www.openstreetmap.org/copyright), openstreetmap.org")
 if st.session_state.get("geocode_error"):
     st.warning(st.session_state.geocode_error)
@@ -1389,7 +1389,7 @@ else:
     elif (not CLOUD) and model_name.startswith("SAM") and ok and area > 0.25:
         minutes = area / 0.05 * 45 / 60
         st.caption(f"SAM 2.1 on {area:.2f} km² takes roughly {minutes:.0f} minutes on this GPU.")
-    if st.button("🔍 Detect field edges", type="primary", disabled=not ok, use_container_width=True):
+    if st.button("🔍 Detect field edges", type="primary", disabled=not ok, width="stretch"):
         prog = st.progress(0.0, text="Downloading imagery…"); t0 = time.time()
         n_tiles = len(sample_tiles)
         field_parts, steger_parts = [], []
@@ -1571,25 +1571,25 @@ if res:
         preview_cap = "Captured imagery (0.25 m) with detected field edges"
         if abs(brightness - 1.0) >= 1e-6:
             preview_cap += f". Screen brightness {brightness:.1f}; the PNG download is the original"
-        st.image(D.view_rgb(res["preview"], brightness), caption=preview_cap, use_container_width=True)
+        st.image(D.view_rgb(res["preview"], brightness), caption=preview_cap, width="stretch")
 
     st.markdown("#### Downloads")
     d1, d2, d3, d4, d5 = st.columns(5)
-    d1.download_button("Fields (GeoJSON)", f.to_json(), "fields.geojson", "application/geo+json", use_container_width=True)
+    d1.download_button("Fields (GeoJSON)", f.to_json(), "fields.geojson", "application/geo+json", width="stretch")
     d2.download_button("Boundaries (GeoJSON)", lines.to_json(), "field_boundaries.geojson",
-                       "application/geo+json", use_container_width=True)
+                       "application/geo+json", width="stretch")
     steger = res.get("steger")
     if steger is not None and len(steger):
         d5.download_button("Steger lines (GeoJSON)", steger.to_json(), "steger_lines.geojson",
-                           "application/geo+json", use_container_width=True)
+                           "application/geo+json", width="stretch")
     with tempfile.TemporaryDirectory() as tmp:
         gp = os.path.join(tmp, "field_edges.gpkg")
         if len(f):
             f.to_file(gp, layer="fields", driver="GPKG"); lines.to_file(gp, layer="boundaries", driver="GPKG")
             d3.download_button("GeoPackage (both layers)", open(gp, "rb").read(), "field_edges.gpkg",
-                               "application/geopackage+sqlite3", use_container_width=True)
+                               "application/geopackage+sqlite3", width="stretch")
     ok, png = cv2.imencode(".png", cv2.cvtColor(res["preview"], cv2.COLOR_RGB2BGR))
-    d4.download_button("Preview (PNG)", png.tobytes(), "field_edges_preview.png", "image/png", use_container_width=True)
+    d4.download_button("Preview (PNG)", png.tobytes(), "field_edges_preview.png", "image/png", width="stretch")
     st.markdown("#### Field edges")
     c_st, c_tol = st.columns([1.3, 1])
     straight = c_st.checkbox(
@@ -1675,7 +1675,7 @@ if res:
     if ex.get("edited"):
         c_note, c_reset = st.columns([3, 1])
         c_note.caption(f"Shapefile uses your edited lines ({ex['n']}).")
-        if c_reset.button("Reset to predicted lines", use_container_width=True):
+        if c_reset.button("Reset to predicted lines", width="stretch"):
             st.session_state.edge_edit_features = None
             st.session_state.edge_edit_run = None
             st.rerun()
@@ -1704,9 +1704,9 @@ if res:
             st.rerun()
     e1, e2, e3 = st.columns(3)
     e1.download_button(f"Image (GeoTIFF, {len(ex['tif']) / 1e6:.1f} MB)", ex["tif"], f"{piece_name}.tif", "image/tiff",
-                       use_container_width=True)
+                       width="stretch")
     e2.download_button(f"Field edges (Shapefile, {ex['n']} lines)", ex["shp"], f"{piece_name}_polyline.zip",
-                       "application/zip", use_container_width=True, disabled=ex["n"] == 0)
+                       "application/zip", width="stretch", disabled=ex["n"] == 0)
     if sample:
         zip_key = (res["run_id"], crs, name, bool(straight), round(float(tol_m), 2) if straight else None)
         if st.session_state.get("tiles_zip_key") != zip_key:
@@ -1714,13 +1714,13 @@ if res:
                 st.session_state.tiles_zip = D.sample_tiles_zip(sample, lines, crs, name)
                 st.session_state.tiles_zip_key = zip_key
         e3.download_button(f"All {len(sample)} sample tiles (ZIP)", st.session_state.tiles_zip,
-                           f"{name}_sample_tiles.zip", "application/zip", type="primary", use_container_width=True)
+                           f"{name}_sample_tiles.zip", "application/zip", type="primary", width="stretch")
     else:
         e3.download_button("Both, training layout (ZIP)", ex["pair"], f"{piece_name}_training.zip", "application/zip",
-                           type="primary", use_container_width=True)
+                           type="primary", width="stretch")
 
     with st.expander("Field table"):
-        st.dataframe(pd.DataFrame(f.drop(columns="geometry")), use_container_width=True, hide_index=True)
+        st.dataframe(pd.DataFrame(f.drop(columns="geometry")), width="stretch", hide_index=True)
 
 st.markdown("---")
 st.caption("Models trained and validated in `Labeled_Data/field_boundary_training.ipynb` on labelled "
