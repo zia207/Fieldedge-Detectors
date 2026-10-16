@@ -1,4 +1,5 @@
-weights/
+weights/*
+!weights/best.pt
 __pycache__/
 *.pyc
 .streamlit/secrets.toml

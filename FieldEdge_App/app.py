@@ -1024,7 +1024,7 @@ if res:
     d4.download_button("Preview (PNG)", png.tobytes(), "field_edges_preview.png", "image/png", use_container_width=True)
     st.markdown("#### Training data (for retraining the models)")
     st.caption("The selected area as an RGB GeoTIFF at 0.25 m and the detected field edges as polylines, in the same "
-               "layout as `Updated_analysis_labeled_data/Data/<split>/<site>/{Tiles,Polyline}`. "
+               "layout as `Labeled_Data/Data/<split>/<site>/{Tiles,Polyline}`. "
                "Edit vertices on the GeoTIFF, then download the corrected lines for the training set.")
     crs_opts = {"WGS 84 (EPSG:4326)": "EPSG:4326",
                 f"Local UTM ({D.utm_crs(res['bbox'])})": D.utm_crs(res["bbox"])}
@@ -1097,5 +1097,5 @@ if res:
         st.dataframe(pd.DataFrame(f.drop(columns="geometry")), use_container_width=True, hide_index=True)
 
 st.markdown("---")
-st.caption("Models trained and validated in `Updated_analysis_labeled_data/field_boundary_training.ipynb` on labelled "
+st.caption("Models trained and validated in `Labeled_Data/field_boundary_training.ipynb` on labelled "
            "Google-imagery screenshots from 10 sites in Bangladesh. Accuracy elsewhere may be lower.")

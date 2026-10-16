@@ -1,17 +1,14 @@
-# Labelled training data — kept locally, not in git
-Labeled_Data/
-Updated_analysis_labeled_data/Data/
-# Models from the previous training run (local backup)
-Updated_analysis_labeled_data/train_outputs_v1/
+# Training study (Labeled_Data/): code and README in git; data, checkpoints and outputs stay local
+Labeled_Data/Data/
+Labeled_Data/checkpoints/
+Labeled_Data/train_outputs/
+Labeled_Data/train_outputs_v1/
+*.log
+# Large pretrained checkpoints (e.g. cropboundarycode/models/resnet_v2_*.ckpt, 0.3–0.7 GB each)
+*.ckpt
 
 # Regenerated outputs and reports
 outputs/
-Updated_analysis_labeled_data/train_outputs/*
-!Updated_analysis_labeled_data/train_outputs/da/
-Updated_analysis_labeled_data/train_outputs/da/*
-!Updated_analysis_labeled_data/train_outputs/da/runs/
-!Updated_analysis_labeled_data/train_outputs/sam1/
-!Updated_analysis_labeled_data/train_outputs/sam2/
 *.ipynb
 *.html
 !FieldEdge_App/web/index.html

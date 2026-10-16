@@ -8,7 +8,7 @@ The online detector (draw a box, run Delineate Anything, Steger lines and the sn
 The Streamlit app below draws a new rectangle and runs the trained models locally, including SAM 2.1.
 
 Draw a rectangle on Google or Esri satellite imagery and detect agricultural field boundaries with the
-models trained on `../Labeled_Data/` in `../Updated_analysis_labeled_data/`.
+models trained in `../Labeled_Data/`. The deployed Delineate Anything weights are `weights/best.pt` (Git LFS).
 
 ## Run
 
@@ -48,7 +48,7 @@ Then open http://localhost:8501.
    - **Field edges (Shapefile):** boundary polylines with an `Id` column; shared edges appear once and
      the box edge is removed.
    - **Both, training layout (ZIP):** `Tiles/<name>.tif` + `Polyline/<name>.shp`, the layout of
-     `../Updated_analysis_labeled_data/Data/<split>/<site>/`. Unzip it into a new site folder.
+     `../Labeled_Data/Data/<split>/<site>/`. Unzip it into a new site folder.
 
    Both are in WGS 84 (EPSG:4326) or the local UTM zone. Turn on **Edit vertices on the GeoTIFF**
    for an ArcGIS-style toolbar: move vertices, add and delete vertices, move a whole line, continue

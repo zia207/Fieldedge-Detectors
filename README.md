@@ -6,8 +6,7 @@ over the same footprint at five sites in Bangladesh (Bhola, Faridpur, Patuakhali
 | File | What it is |
 |---|---|
 | `FieldEdge_App/` | **Field Edge Detector app** (Streamlit): draw a box on Google/Esri imagery and detect field boundaries with the trained models. See its README |
-| `Labeled_Data/` | **Labelled training data** (local only, not in git): `{Train,Valid,Test}/sw_xx/{Tiles,Polyline}`, 58 Google-imagery tiles with hand-digitised boundary polylines |
-| `Updated_analysis_labeled_data/` | **Training study**: trained models and the notebook that trains them on `Labeled_Data/`. See its README |
+| `Labeled_Data/` | **Training study**: notebook generator, run scripts and README in git. Its `Data/` (58 Google-imagery tiles with hand-digitised polylines), `checkpoints/` and `train_outputs/` (trained models) stay local. See its README |
 | `build_notebook.py` | Generates the method-comparison notebook (`field_boundary_comparison.ipynb`) |
 | `render.sh` | Renders the comparison notebook to HTML and a code-free PDF |
 | `random_reference_points.csv` | Independent, visually interpreted reference points |
@@ -52,4 +51,4 @@ Google Maps tiles are subject to Google's Terms of Service, which restrict bulk 
 
 ## Training study
 
-See [`Updated_analysis_labeled_data/README.md`](Updated_analysis_labeled_data/README.md).
+See [`Labeled_Data/README.md`](Labeled_Data/README.md).

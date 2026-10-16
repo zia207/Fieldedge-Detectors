@@ -670,7 +670,7 @@ def outline_preview(img, labels):
 
 
 # ── training-data export ─────────────────────────────────────────────────
-# Same layout as Updated_analysis_labeled_data/Data/<split>/<site>/{Tiles,Polyline}: an RGB GeoTIFF in a
+# Same layout as Labeled_Data/Data/<split>/<site>/{Tiles,Polyline}: an RGB GeoTIFF in a
 # metric CRS and a polyline shapefile (column `Id`) of the field boundaries, both named after the tile.
 BUTM_2010 = "EPSG:9680"         # WGS 84 / TM 90 NE: the CRS of the labelled training tiles
 
