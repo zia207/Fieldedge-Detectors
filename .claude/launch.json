@@ -1,0 +1,27 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fieldedge",
+      "runtimeExecutable": "/home/zia207/Github/Fieldedge-Detectors/.venv/bin/streamlit",
+      "runtimeArgs": [
+        "run",
+        "FieldEdge_App/app.py",
+        "--server.port",
+        "8501"
+      ],
+      "port": 8501
+    },
+    {
+      "name": "fieldedge-test",
+      "runtimeExecutable": "/home/zia207/Github/Fieldedge-Detectors/.venv/bin/streamlit",
+      "runtimeArgs": [
+        "run",
+        "FieldEdge_App/app.py",
+        "--server.port",
+        "8502"
+      ],
+      "port": 8502
+    }
+  ]
+}

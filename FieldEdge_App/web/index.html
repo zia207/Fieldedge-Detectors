@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Field Edge Detector</title>
+<meta name="description" content="Final field polygons for held-out sites in Chuadanga, Bangladesh, after Steger line extraction and snake refinement."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+:root{
+  --silt:#E7E9E1; --panel:#FBFBF7; --ink:#12302C; --ink-soft:#41564F; --ink-faint:#7C8A83;
+  --river:#2E6E6A; --boundary:#E0361F; --rule:rgba(18,48,44,.16);
+  --sam:#2a6bff; --da:#2a7f62; --line:#e6b800;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:"IBM Plex Sans",system-ui,sans-serif;color:var(--ink);background:#0e2320}
+#map{position:absolute;inset:0}
+.panel{
+  position:absolute;z-index:800;top:12px;left:12px;width:min(360px,calc(100% - 24px));
+  max-height:calc(100% - 24px);overflow:auto;
+  background:var(--panel);border:1px solid var(--rule);border-radius:3px;
+  box-shadow:0 18px 40px -28px rgba(18,48,44,.55);
+  padding:16px 16px 14px;
+}
+.brand{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.08em;color:var(--river);margin:0 0 6px}
+h1{font-family:"Archivo",sans-serif;font-size:22px;line-height:1.05;margin:0 0 8px;font-weight:700}
+.lede{margin:0 0 12px;color:var(--ink-soft);font-size:14px;line-height:1.45}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px}
+.metric{border:1px solid var(--rule);border-radius:2px;padding:8px 10px;background:#fff}
+.metric b{display:block;font-family:"Archivo",sans-serif;font-size:16px;font-weight:700}
+.metric span{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}
+h2{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--river);margin:14px 0 6px;font-weight:500}
+.layer{display:flex;gap:8px;align-items:flex-start;margin:7px 0;font-size:14px;cursor:pointer}
+.swatch{width:14px;height:14px;margin-top:3px;border:2px solid;flex:none;border-radius:2px}
+.layer small{display:block;color:var(--ink-faint);font-size:12px}
+.tiles{display:flex;flex-wrap:wrap;gap:4px}
+.tiles button{
+  font-family:"IBM Plex Mono",monospace;font-size:12px;padding:4px 8px;
+  border:1px solid var(--rule);background:#fff;color:var(--ink);cursor:pointer;border-radius:2px;
+}
+.tiles button.on{background:var(--ink);color:var(--silt);border-color:var(--ink)}
+.status{margin-top:10px;color:var(--ink-soft);font-size:12.5px}
+.note{margin-top:12px;font-size:12.5px;color:var(--ink-faint);line-height:1.4}
+.toggle{
+  display:none;position:absolute;z-index:801;top:12px;left:12px;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;padding:8px 10px;
+  background:var(--panel);border:1px solid var(--rule);border-radius:2px;cursor:pointer;
+}
+.leaflet-popup-content{font:13px/1.4 "IBM Plex Sans",system-ui,sans-serif;margin:8px 10px}
+@media (max-width:720px){
+  .toggle{display:block}
+  .panel{display:none}
+  body.show-panel .panel{display:block;top:52px}
+  body.show-panel .toggle{background:var(--ink);color:var(--silt)}
+}
+</style>
+</head>
+<body>
+<button class="toggle" id="toggle" type="button">Layers</button>
+<div id="map"></div>
+<aside class="panel" id="panel">
+  <p class="brand">delineate·fields</p>
+  <h1>Field Edge Detector</h1>
+  <p class="lede">Held-out Test sites sw_09 and sw_10, Chuadanga, Bangladesh. Polygons are the final outlines after Steger (1998) line extraction and snake refinement.</p>
+  <div class="metrics">
+    <div class="metric"><b>0.68</b><span>SAM 2.1 field F1</span></div>
+    <div class="metric"><b>0.77</b><span>SAM boundary F1 @ 1 m</span></div>
+    <div class="metric"><b>0.64</b><span>DA V2 field F1</span></div>
+    <div class="metric"><b>0.67</b><span>DA boundary F1 @ 1 m</span></div>
+  </div>
+  <h2>Layers</h2>
+  <div id="layers"></div>
+  <h2>Zoom to a tile</h2>
+  <div class="tiles" id="tiles"></div>
+  <div class="status" id="status">Loading fields…</div>
+  <p class="note">Yellow lines are Steger candidates inside predicted fields. They are shown for inspection and were not used to split parcels. Imagery © Esri, Maxar, Earthstar Geographics. <a href="dashboard/">Quarto dashboard</a></p>
+</aside>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+const FILES = [
+  { file: "data/sam2_pretrained_final.geojson", name: "SAM 2.1, after snake", color: "#2a6bff",
+    detail: "52.0 ha · 1.37 m from the digitised line", on: true },
+  { file: "data/da_finetuned_final.geojson", name: "Delineate Anything V2, after snake", color: "#2a7f62",
+    detail: "47.4 ha · 2.02 m from the digitised line", on: false }
+];
+
+const map = L.map("map", { zoomControl: true });
+L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+  attribution: "Imagery &copy; Esri, Maxar, Earthstar Geographics",
+  maxZoom: 20
+}).addTo(map);
+L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", {
+  attribution: "Labels &copy; Esri",
+  maxZoom: 20
+}).addTo(map);
+map.setView([23.59, 88.90], 13);
+
+const groups = [];
+const tileBounds = new Map();
+
+function remember(tile, bounds) {
+  if (!bounds.isValid()) return;
+  if (!tileBounds.has(tile)) tileBounds.set(tile, L.latLngBounds(bounds));
+  else tileBounds.get(tile).extend(bounds);
+}
+
+function addPolygons(spec, data) {
+  const group = L.geoJSON(data, {
+    style: { color: spec.color, weight: 1.4, fillColor: spec.color, fillOpacity: 0.22 },
+    onEachFeature(feature, layer) {
+      const p = feature.properties || {};
+      layer.bindPopup(
+        `<strong>${p.name || "Field"}</strong><br>${p.model || spec.name}<br>` +
+        `Site ${p.site || ""} · tile ${p.tile || ""}<br>Area ${Math.round(p.area_m2 || 0).toLocaleString()} m²`
+      );
+      layer.on("mouseover", () => layer.setStyle({ weight: 2.6, fillOpacity: 0.4 }));
+      layer.on("mouseout", () => layer.setStyle({ weight: 1.4, fillOpacity: 0.22 }));
+      if (p.tile) remember(p.tile, layer.getBounds());
+    }
+  });
+  if (spec.on) group.addTo(map);
+  groups.push({ spec, group, count: data.features.length, on: spec.on });
+}
+
+function renderPanel() {
+  const layers = document.getElementById("layers");
+  layers.innerHTML = "";
+  for (const g of groups) {
+    const row = document.createElement("label");
+    row.className = "layer";
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.checked = g.on;
+    box.addEventListener("change", () => {
+      g.on = box.checked;
+      if (g.on) g.group.addTo(map); else map.removeLayer(g.group);
+      updateStatus();
+    });
+    const sw = document.createElement("span");
+    sw.className = "swatch";
+    sw.style.borderColor = g.spec.color;
+    sw.style.background = g.spec.color + "44";
+    const text = document.createElement("span");
+    text.innerHTML = `${g.spec.name} <small>${g.count.toLocaleString()} ${g.spec.file ? "fields" : "lines"}${g.spec.detail ? " · " + g.spec.detail : ""}</small>`;
+    row.append(box, sw, text);
+    layers.append(row);
+  }
+  const tiles = document.getElementById("tiles");
+  tiles.innerHTML = "";
+  const names = [...tileBounds.keys()].sort();
+  function mark(active) {
+    for (const b of tiles.querySelectorAll("button")) b.classList.toggle("on", b === active);
+  }
+  const all = document.createElement("button");
+  all.textContent = "All";
+  all.className = "on";
+  all.addEventListener("click", () => { fitAll(); mark(all); });
+  tiles.append(all);
+  for (const name of names) {
+    const b = document.createElement("button");
+    b.textContent = name;
+    b.addEventListener("click", () => {
+      map.fitBounds(tileBounds.get(name).pad(0.12));
+      mark(b);
+    });
+    tiles.append(b);
+  }
+  updateStatus();
+}
+
+function updateStatus() {
+  const n = groups.filter((g) => g.on && g.spec.file).reduce((s, g) => s + g.count, 0);
+  document.getElementById("status").textContent =
+    `${n.toLocaleString()} fields shown · click a polygon for site, tile and area`;
+}
+
+function fitAll() {
+  map.invalidateSize();
+  const visible = groups.filter((g) => g.on).map((g) => g.group);
+  const bounds = L.featureGroup(visible.length ? visible : groups.map((g) => g.group)).getBounds();
+  if (bounds.isValid()) map.fitBounds(bounds.pad(0.08));
+}
+
+document.getElementById("toggle").addEventListener("click", () => {
+  document.body.classList.toggle("show-panel");
+});
+
+(async () => {
+  try {
+    for (const spec of FILES) addPolygons(spec, await (await fetch(spec.file)).json());
+    const lines = await (await fetch("data/missing_boundaries.geojson")).json();
+    const lineGroup = L.geoJSON(lines, {
+      style: { color: "#e6b800", weight: 2.4, opacity: 0.95 },
+      onEachFeature(feature, layer) {
+        const p = feature.properties || {};
+        layer.bindPopup(`<strong>${p.tile}</strong><br>Steger line · ${Math.round(p.length_m)} m`);
+        if (p.tile && layer.getBounds) remember(p.tile, layer.getBounds());
+      }
+    });
+    groups.push({
+      spec: { name: "Steger lines inside fields", color: "#e6b800", detail: "candidates, not used to split parcels" },
+      group: lineGroup, count: lines.features.length, on: false
+    });
+    renderPanel();
+    requestAnimationFrame(fitAll);
+  } catch (err) {
+    document.getElementById("status").textContent = "Could not load the field layers. " + err.message;
+  }
+})();
+</script>
+</body>
+</html>

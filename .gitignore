@@ -1,0 +1,31 @@
+# Labelled training data — kept locally, not in git
+Labeled_Data/
+Updated_analysis_labeled_data/Data/
+# Models from the previous training run (local backup)
+Updated_analysis_labeled_data/train_outputs_v1/
+
+# Regenerated outputs and reports
+outputs/
+Updated_analysis_labeled_data/train_outputs/*
+!Updated_analysis_labeled_data/train_outputs/da/
+Updated_analysis_labeled_data/train_outputs/da/*
+!Updated_analysis_labeled_data/train_outputs/da/runs/
+!Updated_analysis_labeled_data/train_outputs/sam1/
+!Updated_analysis_labeled_data/train_outputs/sam2/
+*.ipynb
+*.html
+!FieldEdge_App/web/index.html
+*_report.pdf
+run.log
+training_run.log
+run.pid
+
+# Untrained PyTorch checkpoints written by `python -m models.export`
+models/weights/
+
+# Python / editor
+__pycache__/
+*.pyc
+.venv/
+.Rhistory
+.ipynb_checkpoints/
