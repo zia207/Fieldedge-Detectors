@@ -26,3 +26,6 @@ __pycache__/
 .venv/
 .Rhistory
 .ipynb_checkpoints/
+
+# Third-party FTW tutorial: keep its notebook
+!agricultural-monitoring-ftw-main/*.ipynb

@@ -21,21 +21,44 @@ Then open http://localhost:8501.
 ## How it works
 
 1. **Draw** a rectangle with the ▭ tool, or jump to a latitude/longitude first.
+   **Location**, under Go to coordinates, looks up a town, village, or address.
+   Geocoding provided © [OpenStreetMap](https://www.openstreetmap.org/copyright), openstreetmap.org.
+   **Viewer brightness** (0.5–2.0, default 1.0) lightens or darkens the map, the captured preview,
+   and the GeoTIFF editor. Detection and the downloaded GeoTIFF keep the original brightness.
 2. **Imagery:** tiles for the box are downloaded from the chosen source (Google Satellite by default,
-   or Esri World Imagery) at the chosen scale:
+   Esri World Imagery, or Sentinel-2) at the chosen scale:
    - **20 m scale = zoom 19 (≈ 0.28 m/px):** recommended; closest to the models' training resolution.
    - **50 m scale = zoom 18 (≈ 0.55 m/px):** use where zoom 19 is missing.
+   - **Sentinel-2:** Copernicus L2A at 10 m, one date, from
+     [Microsoft Planetary Computer](https://planetarycomputer.microsoft.com/). The same scene is what the
+     [Copernicus Browser](https://browser.dataspace.copernicus.eu/) shows. The browser page is not a data
+     feed. The map stays the 2024 true-colour mosaic. **Scene colour** chooses the detection picture:
+     **False colour** (the default) is near-infrared, red, and green (bands B08, B04, B03), so crops
+     show red; **True colour** is the visual red-green-blue asset. Cloud cover is for the whole
+     satellite tile. **Large fields** (the default) runs SAM 2.1 on that screenshot resampled to 2.5 m,
+     so a field that fills the scene is kept. The FTW checkpoint needs two dates and eight bands, which a
+     screenshot does not have. **Narrow plots** still uses the 0.25 m models.
+     **RGB + NIR (SAM 2.1)** picks that same scene, downloads red, green, blue, and near-infrared,
+     runs SAM 2.1 at 2.5 m, then polygonizes the masks (simplify, minimum and maximum size, remove holes),
+     the last step of the Fields of the World notebook.
+     **Sharpen** applies an unsharp mask on the 10 m scene before the resample
+     (default 1.5; 0 leaves it unchanged).
 
-   If the source has no zoom-19 imagery (grey "not available" tiles), the app falls back to zoom 18
+   If Google or Esri has no zoom-19 imagery (grey "not available" tiles), the app falls back to zoom 18
    automatically.
 3. The image is **resampled to 0.25 m/px**, the resolution of the training data.
 4. **Detect** with one of three models:
 
    | Model | Held-out test accuracy | Speed (GPU) | Max box |
    |---|---|---|---|
-   | Delineate Anything V2, fine-tuned (default) | field F1 0.64 · boundary F1 0.65 @ 1 m | ≈ 1–7 s per 0.05 km² | 2 km² |
-   | SAM 2.1, pre-trained, calibrated | field F1 0.68 · boundary F1 0.77 @ 1 m | ≈ 45 s per 0.05 km² | 0.25 km² |
-   | FC-DenseNet | depth and threshold chosen on Valid | a few seconds per 0.05 km² | 1 km² |
+   | Delineate Anything V2, fine-tuned (default) | field F1 0.64 · boundary F1 0.65 @ 1 m | ≈ 1–7 s per 0.05 km² | 4 km², or 10 km² split into sample tiles |
+   | SAM 2.1, pre-trained, calibrated | field F1 0.68 · boundary F1 0.77 @ 1 m | ≈ 45 s per 0.05 km² | 4 km², or 10 km² split into sample tiles |
+   | FC-DenseNet | depth and threshold chosen on Valid | a few seconds per 0.05 km² | 4 km², or 10 km² split into sample tiles |
+
+   The selection is a rectangle. Up to 4 km² is one detection. From 4 km² to 10 km² the rectangle is split
+   into sample tiles of at most 4 km², each tile is detected on its own, and the fields are merged.
+   Neighbouring tiles overlap by 80 m so a field on the tile edge is kept whole in the tile that holds
+   its centre. The training download then has one GeoTIFF and one polyline shapefile per sample tile.
 5. **Refine the outlines** (on by default), as in section 7.2 of the training notebook. Dark bund
    centres are extracted with Steger (1998). Each outline is a closed snake that may move at most
    0.75 m along its normal onto a centre, and only when the field still overlaps itself (IoU ≥ 0.92)
@@ -43,6 +66,9 @@ Then open http://localhost:8501.
    used to split parcels.
 6. **Results:** the refined field polygons over the imagery, a preview image, a field table, and downloads
    (fields GeoJSON, boundary GeoJSON, Steger-line GeoJSON, GeoPackage, PNG preview).
+   **Clean and straighten field edges**, just above the training-data section, removes bends within a
+   tolerance (default 3 m) and replaces each side with one straight line. The map, the boundary
+   download, and the training shapefile then use those edges. The preview image stays the raster detection.
 7. **Training data:** download the selected area and its detected edges for retraining the models:
    - **Image (GeoTIFF):** RGB at 0.25 m, warped from the captured imagery and cropped to the box.
    - **Field edges (Shapefile):** boundary polylines with an `Id` column; shared edges appear once and
@@ -62,5 +88,6 @@ without the UI.
 
 - The models were trained on 10 sites in Bangladesh (Google imagery). Accuracy elsewhere may be lower.
 - Google's Terms of Service restrict bulk download and reuse of its imagery: use it for research only.
-  Esri World Imagery is the safer choice for shared or operational work.
+  Esri World Imagery is the safer choice for shared or operational work. Sentinel-2 is Copernicus data
+  and can be reused with the attribution shown on the map.
 - SAM 2 needs a CUDA GPU in practice. Delineate Anything also runs on CPU, but slowly.
