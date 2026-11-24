@@ -19,7 +19,7 @@ includes 1 GB of LFS bandwidth per month.
 5. Open **Advanced settings** and choose **Python 3.12** (the CPU torch wheel in `requirements.txt` is built for it).
 6. **Deploy.** The first build installs PyTorch CPU and pulls `best.pt`; it takes several minutes.
 
-`requirements.txt` in this folder is the cloud environment (Streamlit Cloud uses the file next to the main file).
+`requirements.txt` in this folder is the cloud environment (Streamlit Cloud uses the file next to the main file). `packages.txt` at the repository root supplies the OpenCV system libraries (`libgl1` and friends). Reboot the app after that file changes; a code refresh does not reinstall apt packages.
 Keep `pyarrow==17.0.0` while NumPy is pinned below 2: newer pyarrow needs NumPy 2, and the map component needs pyarrow.
 
 The deployed app is public by default even though the repository is private. To restrict it, open the app's
