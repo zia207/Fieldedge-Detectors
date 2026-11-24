@@ -11,6 +11,7 @@ Labeled_Data/train_outputs_v1/
 outputs/
 *.ipynb
 *.html
+!index.html
 !FieldEdge_App/web/index.html
 *_report.pdf
 run.log
