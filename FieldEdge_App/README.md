@@ -1,7 +1,7 @@
 # Field Edge Detector
 
-The public map of the final Test polygons is at <https://zia207.github.io/field-edge-app/>.
-The page source is in `web/`.
+The public map of the final Test polygons is at <https://zia207.github.io/Fieldedge-Detectors/>.
+The page source is in `web/`, and GitHub Pages publishes that folder.
 
 The online detector (draw a box, run Delineate Anything, Steger lines and the snake) is the Streamlit Community Cloud app in [CLOUD.md](CLOUD.md). The repository is <https://github.com/zia207/field-edge-dashboard>. You turn the public link on at [share.streamlit.io](https://share.streamlit.io) with main file `streamlit_app.py`.
 

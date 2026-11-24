@@ -20,7 +20,10 @@ from streamlit_folium import st_folium
 
 import detector as D
 
-st.set_page_config(page_title="Field Edge Detector", page_icon="🌾", layout="wide")
+_APP_DIR = os.path.dirname(os.path.abspath(__file__))
+GEOLATTICE_LOGO = os.path.join(_APP_DIR, "..", "geolattice_logo.png")
+
+st.set_page_config(page_title="Field Edge Detector", page_icon=GEOLATTICE_LOGO, layout="wide")
 
 # FIELD_EDGE_CLOUD=1 is the public Streamlit Community Cloud app: one model, a small box, CPU.
 CLOUD = os.environ.get("FIELD_EDGE_CLOUD") == "1"
@@ -981,8 +984,6 @@ def _render_report():
 
 
 # ── sidebar ──────────────────────────────────────────────────────────────
-_APP_DIR = os.path.dirname(os.path.abspath(__file__))
-PYGIS_LOGO = os.path.join(_APP_DIR, "..", "pygis_logo.png")
 UPATTA_LOGO = os.path.join(_APP_DIR, "..", "upatta_logo.png")
 with open(UPATTA_LOGO, "rb") as _logo_file:
     _upatta_b64 = base64.b64encode(_logo_file.read()).decode()
@@ -991,14 +992,14 @@ with st.sidebar:
     st.markdown(
         """
         <style>
-        [data-testid="stSidebar"] [data-testid="stElementContainer"]:has(.fe-pygis)
+        [data-testid="stSidebar"] [data-testid="stElementContainer"]:has(.fe-brand)
             + [data-testid="stElementContainer"] [data-testid="stImage"] {
             display: flex;
-            justify-content: flex-start;
+            justify-content: center;
         }
-        [data-testid="stSidebar"] [data-testid="stElementContainer"]:has(.fe-pygis)
+        [data-testid="stSidebar"] [data-testid="stElementContainer"]:has(.fe-brand)
             + [data-testid="stElementContainer"] img {
-            width: 60% !important;
+            width: 72% !important;
             height: auto !important;
         }
         [data-testid="stSidebar"] { container-type: inline-size; }
@@ -1044,8 +1045,8 @@ with st.sidebar:
         """,
         unsafe_allow_html=True,
     )
-    st.markdown('<div class="fe-pygis"></div>', unsafe_allow_html=True)
-    st.image(PYGIS_LOGO, width="stretch")
+    st.markdown('<div class="fe-brand"></div>', unsafe_allow_html=True)
+    st.image(GEOLATTICE_LOGO, width="stretch")
     page = st.radio(
         "Pages",
         [PAGE_DETECT, PAGE_GUIDE, PAGE_REPORT],

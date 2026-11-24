@@ -1,6 +1,8 @@
 # Field Edge Detector
 
-Public map of the final Test field polygons (sites sw_09 and sw_10, Chuadanga, Bangladesh), after Steger (1998) line extraction and snake refinement.
+Public map: <https://zia207.github.io/Fieldedge-Detectors/>.
+
+Final Test field polygons (sites sw_09 and sw_10, Chuadanga, Bangladesh), after Steger (1998) line extraction and snake refinement.
 
 Open the page, toggle SAM 2.1 and Delineate Anything V2, and click a polygon for its tile and area.
 
