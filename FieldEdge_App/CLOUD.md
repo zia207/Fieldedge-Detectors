@@ -13,7 +13,8 @@ includes 1 GB of LFS bandwidth per month.
 1. Open [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub as **zia207**.
    The repository is private: when asked, let Streamlit access your private repositories.
 2. Choose **Create app** → **Deploy a public app from GitHub**.
-3. Repository `zia207/Fieldedge-Detectors`, branch `main`, main file path `FieldEdge_App/streamlit_app.py`.
+3. Repository `zia207/Fieldedge-Detectors`, branch `main`, main file path `FieldEdge_App/app.py`
+   (or `FieldEdge_App/streamlit_app.py`; both turn on the CPU limits on Community Cloud).
 4. Optionally set a custom subdomain under **App URL**, for example `field-edge-detector`.
 5. Open **Advanced settings** and choose **Python 3.12** (the CPU torch wheel in `requirements.txt` is built for it).
 6. **Deploy.** The first build installs PyTorch CPU and pulls `best.pt`; it takes several minutes.

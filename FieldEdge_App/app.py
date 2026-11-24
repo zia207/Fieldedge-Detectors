@@ -3,10 +3,34 @@ boundaries with models trained on labelled Google-imagery screenshots from Bangl
 
 Run:  cd FieldEdge_App && ../.venv/bin/streamlit run app.py
 """
-import base64, hashlib, io, json, math, os, re, tempfile, time, zipfile
+import base64, hashlib, io, json, math, os, re, subprocess, sys, tempfile, time, zipfile
 from datetime import date, timedelta
 
-import cv2
+# Community Cloud mounts the repo at /mount/src and has no GPU and no libGL.
+if "/mount/src/" in os.path.abspath(__file__):
+    os.environ["FIELD_EDGE_CLOUD"] = "1"
+
+
+def _import_cv2():
+    """ultralytics installs the libGL build of OpenCV, which cannot load on the free host."""
+    try:
+        import cv2
+        return cv2
+    except (ImportError, OSError):
+        subprocess.check_call(
+            [
+                sys.executable, "-m", "pip", "install", "--force-reinstall", "--no-deps",
+                "opencv-python-headless==4.10.0.84",
+            ]
+        )
+        for name in list(sys.modules):
+            if name == "cv2" or name.startswith("cv2."):
+                del sys.modules[name]
+        import cv2
+        return cv2
+
+
+cv2 = _import_cv2()
 import folium
 import numpy as np
 import pandas as pd
@@ -999,7 +1023,7 @@ with st.sidebar:
         }
         [data-testid="stSidebar"] [data-testid="stElementContainer"]:has(.fe-brand)
             + [data-testid="stElementContainer"] img {
-            width: 72% !important;
+            width: 7.5rem !important;
             height: auto !important;
         }
         [data-testid="stSidebar"] { container-type: inline-size; }

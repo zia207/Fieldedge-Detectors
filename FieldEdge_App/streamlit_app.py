@@ -16,7 +16,7 @@ def _ensure_headless_cv2():
     try:
         import cv2  # noqa: F401
         return
-    except OSError:
+    except (ImportError, OSError):
         pass
     import subprocess
     subprocess.check_call(
